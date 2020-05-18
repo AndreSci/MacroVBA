@@ -62,6 +62,7 @@ Sub Report_For_the_Client()
     
     
     For posLine = 1 To 10 'не логично искать дальше если на 10 строке пусто или нет условия
+    ' начало внутреннего цикла ------------------------------------------------------------
         For posCol = 1 To 30
             If Sheets(NameSheetCopy).Cells(posLine, posCol) = Number_t Then
             find_item_for = find_item_for + 1
@@ -111,6 +112,7 @@ Sub Report_For_the_Client()
             End If
             
         Next posCol
+        ' конец внутреннего цикла ------------------------------------------------------------
         
         If find_item_for = 11 Then
         line_pos = (posLine + 1)
@@ -199,149 +201,60 @@ Sub Report_For_the_Client()
         .TintAndShade = -4.99893185216834E-02
     End With
     
-    ' подгон меню +++++++++++++++++++++++++++++++++++++++++
-    
-    Range("B2:C2").Select
-        ' выравнивание текста по центру
-    With Selection
-        .HorizontalAlignment = xlCenter
-    End With
-    
+    ' подгон меню стиль текста ++++++++++++++++++++++++++++++++++++++++++++++++++++
     
     Range("A5:H5").Select
-    Selection.Font.Bold = True
-    With Selection.Font
-        .Name = "Calibri"
-        .Size = 10
-        .Underline = xlUnderlineStyleNone
-        .ThemeFont = xlThemeFontMinor
-    End With
     With Selection
+        .Font.Bold = True
+        .Font.Name = "Calibri"
+        .Font.Size = 10
+        .Font.Underline = xlUnderlineStyleNone
+        .Font.ThemeFont = xlThemeFontMinor
         .HorizontalAlignment = xlCenter
         .VerticalAlignment = xlBottom
         .ReadingOrder = xlContext
     End With
     
-    
-    
-
-    
     'подгоняем рамки +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     
-    Range("B2:B3").Select
-    Selection.Borders(xlDiagonalDown).LineStyle = xlNone
-    Selection.Borders(xlDiagonalUp).LineStyle = xlNone
-    With Selection.Borders(xlEdgeLeft)
-        .LineStyle = xlContinuous
-        .Weight = xlThin
-    End With
-    With Selection.Borders(xlEdgeTop)
-        .LineStyle = xlContinuous
-        .Weight = xlThin
-    End With
-    With Selection.Borders(xlEdgeBottom)
-        .LineStyle = xlContinuous
-        .Weight = xlThin
-    End With
-    With Selection.Borders(xlEdgeRight)
-        .LineStyle = xlContinuous
-        .Weight = xlThin
-    End With
-    Selection.Borders(xlInsideVertical).LineStyle = xlNone
-    Selection.Borders(xlInsideHorizontal).LineStyle = xlNone
-    
-        Range("C2:C3").Select
-    Selection.Borders(xlDiagonalDown).LineStyle = xlNone
-    Selection.Borders(xlDiagonalUp).LineStyle = xlNone
-    With Selection.Borders(xlEdgeLeft)
-        .LineStyle = xlContinuous
-        .Weight = xlThin
-    End With
-    With Selection.Borders(xlEdgeTop)
-        .LineStyle = xlContinuous
-        .Weight = xlThin
-    End With
-    With Selection.Borders(xlEdgeBottom)
-        .LineStyle = xlContinuous
-        .Weight = xlThin
-    End With
-    With Selection.Borders(xlEdgeRight)
-        .LineStyle = xlContinuous
-        .Weight = xlThin
-    End With
-    Selection.Borders(xlInsideVertical).LineStyle = xlNone
-    Selection.Borders(xlInsideHorizontal).LineStyle = xlNone
-    
-    ' подгон меню +++++++++++++++++++++++++++++++++++++++++++
-        Range("A5:H5").Select
-    Selection.Borders(xlDiagonalDown).LineStyle = xlNone
-    Selection.Borders(xlDiagonalUp).LineStyle = xlNone
-    With Selection.Borders(xlEdgeLeft)
-        .LineStyle = xlContinuous
-        .Weight = xlThin
-    End With
-    With Selection.Borders(xlEdgeTop)
-        .LineStyle = xlContinuous
-        .Weight = xlThin
-    End With
-    With Selection.Borders(xlEdgeBottom)
-        .LineStyle = xlContinuous
-        .Weight = xlThin
-    End With
-    With Selection.Borders(xlEdgeRight)
-        .LineStyle = xlContinuous
-        .Weight = xlThin
-    End With
-    
-    Range("A5").Select
-        Selection.Borders(xlDiagonalDown).LineStyle = xlNone
-    Selection.Borders(xlDiagonalUp).LineStyle = xlNone
-        With Selection.Borders(xlEdgeRight)
-        .LineStyle = xlContinuous
-        .Weight = xlThin
-    End With
-    '++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    Range("A5").Select
-        Selection.Borders(xlDiagonalDown).LineStyle = xlNone
-    Selection.Borders(xlDiagonalUp).LineStyle = xlNone
-        With Selection.Borders(xlEdgeRight)
-        .LineStyle = xlContinuous
-        .Weight = xlThin
-    End With
-        Range("B5").Select
-        Selection.Borders(xlDiagonalDown).LineStyle = xlNone
-    Selection.Borders(xlDiagonalUp).LineStyle = xlNone
-        With Selection.Borders(xlEdgeRight)
-        .LineStyle = xlContinuous
-        .Weight = xlThin
-    End With
-        Range("C5").Select
-        Selection.Borders(xlDiagonalDown).LineStyle = xlNone
-    Selection.Borders(xlDiagonalUp).LineStyle = xlNone
-        With Selection.Borders(xlEdgeRight)
-        .LineStyle = xlContinuous
-        .Weight = xlThin
-    End With
-        Range("D5").Select
-        Selection.Borders(xlDiagonalDown).LineStyle = xlNone
-    Selection.Borders(xlDiagonalUp).LineStyle = xlNone
-        With Selection.Borders(xlEdgeRight)
-        .Weight = xlThin
-    End With
-        Range("E5").Select
-    Selection.Borders(xlDiagonalUp).LineStyle = xlNone
-        With Selection.Borders(xlEdgeRight)
-        .Weight = xlThin
-    End With
-        Range("F5").Select
-    Selection.Borders(xlDiagonalUp).LineStyle = xlNone
-        With Selection.Borders(xlEdgeRight)
-        .Weight = xlThin
-    End With
-        Range("G5").Select
-    Selection.Borders(xlDiagonalUp).LineStyle = xlNone
-        With Selection.Borders(xlEdgeRight)
-        .Weight = xlThin
+    Range("B2:C3").Select
+    With Selection
+        .Font.Size = 10
+        .HorizontalAlignment = xlCenter
+        .Borders(xlDiagonalDown).LineStyle = xlNone
+        .Borders(xlDiagonalUp).LineStyle = xlNone
+        .Borders(xlEdgeLeft).LineStyle = xlContinuous
+        .Borders(xlEdgeLeft).Weight = xlThin
+        .Borders(xlEdgeTop).LineStyle = xlContinuous
+        .Borders(xlEdgeTop).Weight = xlThin
+        .Borders(xlEdgeBottom).LineStyle = xlContinuous
+        .Borders(xlEdgeBottom).Weight = xlThin
+        .Borders(xlEdgeRight).LineStyle = xlContinuous
+        .Borders(xlEdgeRight).Weight = xlThin
+        .Borders(xlInsideVertical).LineStyle = xlContinuous
+        .Borders(xlInsideVertical).Weight = xlThin
+        .Borders(xlInsideHorizontal).LineStyle = xlContinuous
+        .Borders(xlInsideHorizontal).Weight = xlThin
+     End With
+  
+
+    'создаем сетку для меню +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    Range("A5:H5").Select
+    With Selection
+        .Borders(xlDiagonalDown).LineStyle = xlNone
+        .Borders(xlDiagonalUp).LineStyle = xlNone
+        .Borders(xlEdgeLeft).LineStyle = xlContinuous
+        .Borders(xlEdgeLeft).Weight = xlThin
+        .Borders(xlEdgeTop).LineStyle = xlContinuous
+        .Borders(xlEdgeTop).Weight = xlThin
+        .Borders(xlEdgeBottom).LineStyle = xlContinuous
+        .Borders(xlEdgeBottom).Weight = xlThin
+        .Borders(xlEdgeRight).LineStyle = xlContinuous
+        .Borders(xlEdgeRight).Weight = xlThin
+        .Borders(xlInsideVertical).LineStyle = xlContinuous
+        .Borders(xlInsideVertical).Weight = xlThin
+        .Borders(xlInsideHorizontal).LineStyle = xlContinuous
+        .Borders(xlInsideHorizontal).Weight = xlThin
     End With
     
     ' закончили подгон ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -470,6 +383,7 @@ Sub Report_For_the_Client()
     With Selection
         .Font.Name = "Calibri"
         .Font.Size = 10
+        .Font.Bold = True
         .HorizontalAlignment = xlCenter
     End With
     
@@ -478,6 +392,7 @@ Sub Report_For_the_Client()
     With Selection
         .Font.Name = "Calibri"
         .Font.Size = 10
+        .Font.Bold = True
         .HorizontalAlignment = xlCenter
     End With
     
