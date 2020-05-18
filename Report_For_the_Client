@@ -1,0 +1,611 @@
+
+Sub Report_For_the_Client()
+
+    'Раздел переменных для языковых вариантов -----
+    'messageGood = "The search ended with the beginning of the table "
+    messageGood = "Поиск завершился начало работы таблицы "
+    'messageFailed = "The search failed!"
+    messageFailed = "Поиск завершился неудачно!"
+    'messageEnd = "A report has been created for the client!"
+    messageEnd = "Отчет для клиента создан"
+    'messageErFix = "fix the field or create a new one"
+    messageErFix = "Исправьте или создайте поле"
+    
+    'ResultBySec = "Results by section"
+    ResultBySec = "Итого по разделу:"
+    
+    '----------------------------------------------
+    'создаем ForClient лист+++++++++++++++++++++++++++++++
+    'For_Sheet_Client = "ForClient"
+    For_Sheet_Client = "Отчет для заказчика"
+    NameSheetCopy = ActiveSheet.Name
+    'поиск стобцов в таблице +++++++++++++++++++++++++++++++++++
+        'переменные для определения линии и столбца
+        line_pos = 1
+        LineFind = False
+        'конец определения
+    find_item_for = 0
+    'завершение поиска нужных позиций принудительно до заданной позиции
+    Number_t = "№"
+    Сhapter_t_N = "№ разд."
+    Chapter_t = "Раздел"
+    Chapter_t_s = "раздел"
+    Manufacture_t = "Произв."
+    Manufacture_t_s = "произв."
+    Model_t = "Модель"
+    Model_t_s = "модель"
+    Name_t = "Наименование"
+    Name_t_s = "наименование"
+    Index_t = "Ед. изм."
+    Index_t_s = "ед. изм."
+    Count_t = "Кол-во"
+    Count_t_s = "кол-во"
+    Price_t = "Цена"
+    Price_t_s = "цена"
+    Sum_t = "Сумма"
+    Sum_t_s = "сумма"
+    Subsection_Name_Index = "Подраздел"
+    
+    'определили искомые объекты в таблице
+    Dim massiv_table(11) As String
+    massiv_table(0) = Number_t
+    massiv_table(1) = Сhapter_t_N
+    massiv_table(2) = Manufacture_t
+    massiv_table(3) = Model_t
+    massiv_table(4) = Name_t
+    massiv_table(5) = Index_t
+    massiv_table(6) = Count_t
+    massiv_table(7) = Price_t
+    massiv_table(8) = Sum_t
+    massiv_table(9) = Chapter_t
+    massiv_table(10) = Subsection_Name_Index
+    
+    
+    For posLine = 1 To 10 'не логично искать дальше если на 10 строке пусто или нет условия
+        For posCol = 1 To 30
+            If Sheets(NameSheetCopy).Cells(posLine, posCol) = Number_t Then
+            find_item_for = find_item_for + 1
+            massiv_table(0) = ""
+            LineFind = True
+            Number_t = posCol
+                        ElseIf Sheets(NameSheetCopy).Cells(posLine, posCol) = Сhapter_t_N Then
+            massiv_table(1) = ""
+            find_item_for = find_item_for + 1
+            Сhapter_t_N = posCol
+                        ElseIf Sheets(NameSheetCopy).Cells(posLine, posCol) = Chapter_t Or Sheets(NameSheetCopy).Cells(posLine, posCol) = Chapter_t_s Then
+            find_item_for = find_item_for + 1
+            massiv_table(9) = ""
+            Chapter_t = posCol
+                        ElseIf Sheets(NameSheetCopy).Cells(posLine, posCol) = Manufacture_t Or Sheets(NameSheetCopy).Cells(posLine, posCol) = Manufacture_t_s Then
+            find_item_for = find_item_for + 1
+            massiv_table(2) = ""
+            Manufacture_t = posCol
+                        ElseIf Sheets(NameSheetCopy).Cells(posLine, posCol) = Model_t Or Sheets(NameSheetCopy).Cells(posLine, posCol) = Model_t_s Then
+            find_item_for = find_item_for + 1
+            massiv_table(3) = ""
+            Model_t = posCol
+                        ElseIf Sheets(NameSheetCopy).Cells(posLine, posCol) = Name_t Or Sheets(NameSheetCopy).Cells(posLine, posCol) = Name_t_s Then
+            find_item_for = find_item_for + 1
+            massiv_table(4) = ""
+            Name_t = posCol
+                        ElseIf Sheets(NameSheetCopy).Cells(posLine, posCol) = Index_t Or Sheets(NameSheetCopy).Cells(posLine, posCol) = Index_t_s Then
+            find_item_for = find_item_for + 1
+            massiv_table(5) = ""
+            Index_t = posCol
+                        ElseIf Sheets(NameSheetCopy).Cells(posLine, posCol) = Count_t Or Sheets(NameSheetCopy).Cells(posLine, posCol) = Count_t_s Then
+            find_item_for = find_item_for + 1
+            massiv_table(6) = ""
+            Count_t = posCol
+                        ElseIf Sheets(NameSheetCopy).Cells(posLine, posCol) = Price_t Or Sheets(NameSheetCopy).Cells(posLine, posCol) = Price_t_s Then
+            find_item_for = find_item_for + 1
+            massiv_table(7) = ""
+            Price_t = posCol
+                        ElseIf Sheets(NameSheetCopy).Cells(posLine, posCol) = Sum_t Or Sheets(NameSheetCopy).Cells(posLine, posCol) = Sum_t_s Then
+            find_item_for = find_item_for + 1
+            massiv_table(8) = ""
+            Sum_t = posCol
+                        ElseIf Sheets(NameSheetCopy).Cells(posLine, posCol) = Subsection_Name_Index Then
+            find_item_for = find_item_for + 1
+            massiv_table(10) = ""
+            Subsection_Name_Index = posCol
+            End If
+            
+        Next posCol
+        
+        If find_item_for = 11 Then
+        line_pos = (posLine + 1)
+        'MsgBox messageGood & line_pos & " : " & Number_t
+            Exit For
+        ElseIf LineFind = True Then
+                error_type = ""
+                For index_f = 0 To 10
+                    If massiv_table(index_f) <> "" Then
+                    error_type = massiv_table(index_f)
+                    Exit For
+                    End If
+                Next index_f
+        
+                MsgBox messageErFix & " - ( " & error_type & " )"   'сообщение об ошибке
+        Exit Sub
+        
+        End If
+                
+        If posLine = 10 Then
+        MsgBox messageFailed    'сообщение об ошибке
+        macroGood_end = False
+        Exit Sub
+        End If
+        
+    Next posLine
+    
+    'конец поиска столбцов в таблице +++++++++++++++++++++++++++
+    
+    Application.DisplayAlerts = False
+    On Error Resume Next
+    Worksheets(For_Sheet_Client).Delete
+    Application.DisplayAlerts = True
+    Worksheets.Add.Name = For_Sheet_Client
+   
+    Sheets(For_Sheet_Client).Activate
+    
+    'построения клетки таблицы++++++++++++++++++++++++
+    Columns("A:A").ColumnWidth = 3.7
+    Columns("B:B").ColumnWidth = 14.14
+    Columns("C:C").ColumnWidth = 16.14
+    Columns("D:D").ColumnWidth = 68.43
+    Columns("E:E").ColumnWidth = 7.29
+    Columns("F:F").ColumnWidth = 6.14
+    Columns("G:G").ColumnWidth = 12.29
+    Columns("H:H").ColumnWidth = 12.29
+    Rows("1:1").RowHeight = 12
+    Rows("2:2").RowHeight = 14
+    Rows("3:3").RowHeight = 16
+    Rows("4:4").RowHeight = 12
+    Rows("5:5").RowHeight = 12
+    Rows("6:6").RowHeight = 12
+    Rows("7:7").RowHeight = 12
+    Rows("8:8").RowHeight = 12
+    
+    'создаем перечень таблицы++++++++++++++++++++++++++
+    
+    Range("B2").Value = "Текущая дата"
+    Range("B3").Value = Date
+    Range("C2").Value = "Договор №"
+    
+    Range("A5").Value = "№"
+    Range("B5").Value = "Произв."
+    Range("C5").Value = "Модель"
+    Range("D5").Value = "Наименование"
+    
+    Range("E5").Value = "Ед. изм."
+    Range("F5").Value = "Кол-во"
+    Range("G5").Value = "Цена"
+    Range("H5").Value = "Сумма"
+    
+
+    ' цвет_меню ++++++++++++++++++++++++++++++++++++++++++++
+    
+    Range("A5:H5").Select
+    With Selection.Interior
+        .Pattern = xlSolid
+        .PatternColorIndex = xlAutomatic
+        .TintAndShade = -0.149998474074526
+    End With
+    
+    Range("A6:H6").Select
+    With Selection.Interior
+        .Pattern = xlSolid
+        .PatternColorIndex = xlAutomatic
+        .TintAndShade = -4.99893185216834E-02
+    End With
+    
+    ' подгон меню +++++++++++++++++++++++++++++++++++++++++
+    
+    Range("B2:C2").Select
+        ' выравнивание текста по центру
+    With Selection
+        .HorizontalAlignment = xlCenter
+    End With
+    
+    
+    Range("A5:H5").Select
+    Selection.Font.Bold = True
+    With Selection.Font
+        .Name = "Calibri"
+        .Size = 10
+        .Underline = xlUnderlineStyleNone
+        .ThemeFont = xlThemeFontMinor
+    End With
+    With Selection
+        .HorizontalAlignment = xlCenter
+        .VerticalAlignment = xlBottom
+        .ReadingOrder = xlContext
+    End With
+    
+    
+    
+
+    
+    'подгоняем рамки +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    
+    Range("B2:B3").Select
+    Selection.Borders(xlDiagonalDown).LineStyle = xlNone
+    Selection.Borders(xlDiagonalUp).LineStyle = xlNone
+    With Selection.Borders(xlEdgeLeft)
+        .LineStyle = xlContinuous
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlEdgeTop)
+        .LineStyle = xlContinuous
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlEdgeBottom)
+        .LineStyle = xlContinuous
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlEdgeRight)
+        .LineStyle = xlContinuous
+        .Weight = xlThin
+    End With
+    Selection.Borders(xlInsideVertical).LineStyle = xlNone
+    Selection.Borders(xlInsideHorizontal).LineStyle = xlNone
+    
+        Range("C2:C3").Select
+    Selection.Borders(xlDiagonalDown).LineStyle = xlNone
+    Selection.Borders(xlDiagonalUp).LineStyle = xlNone
+    With Selection.Borders(xlEdgeLeft)
+        .LineStyle = xlContinuous
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlEdgeTop)
+        .LineStyle = xlContinuous
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlEdgeBottom)
+        .LineStyle = xlContinuous
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlEdgeRight)
+        .LineStyle = xlContinuous
+        .Weight = xlThin
+    End With
+    Selection.Borders(xlInsideVertical).LineStyle = xlNone
+    Selection.Borders(xlInsideHorizontal).LineStyle = xlNone
+    
+    ' подгон меню +++++++++++++++++++++++++++++++++++++++++++
+        Range("A5:H5").Select
+    Selection.Borders(xlDiagonalDown).LineStyle = xlNone
+    Selection.Borders(xlDiagonalUp).LineStyle = xlNone
+    With Selection.Borders(xlEdgeLeft)
+        .LineStyle = xlContinuous
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlEdgeTop)
+        .LineStyle = xlContinuous
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlEdgeBottom)
+        .LineStyle = xlContinuous
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlEdgeRight)
+        .LineStyle = xlContinuous
+        .Weight = xlThin
+    End With
+    
+    Range("A5").Select
+        Selection.Borders(xlDiagonalDown).LineStyle = xlNone
+    Selection.Borders(xlDiagonalUp).LineStyle = xlNone
+        With Selection.Borders(xlEdgeRight)
+        .LineStyle = xlContinuous
+        .Weight = xlThin
+    End With
+    '++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    Range("A5").Select
+        Selection.Borders(xlDiagonalDown).LineStyle = xlNone
+    Selection.Borders(xlDiagonalUp).LineStyle = xlNone
+        With Selection.Borders(xlEdgeRight)
+        .LineStyle = xlContinuous
+        .Weight = xlThin
+    End With
+        Range("B5").Select
+        Selection.Borders(xlDiagonalDown).LineStyle = xlNone
+    Selection.Borders(xlDiagonalUp).LineStyle = xlNone
+        With Selection.Borders(xlEdgeRight)
+        .LineStyle = xlContinuous
+        .Weight = xlThin
+    End With
+        Range("C5").Select
+        Selection.Borders(xlDiagonalDown).LineStyle = xlNone
+    Selection.Borders(xlDiagonalUp).LineStyle = xlNone
+        With Selection.Borders(xlEdgeRight)
+        .LineStyle = xlContinuous
+        .Weight = xlThin
+    End With
+        Range("D5").Select
+        Selection.Borders(xlDiagonalDown).LineStyle = xlNone
+    Selection.Borders(xlDiagonalUp).LineStyle = xlNone
+        With Selection.Borders(xlEdgeRight)
+        .Weight = xlThin
+    End With
+        Range("E5").Select
+    Selection.Borders(xlDiagonalUp).LineStyle = xlNone
+        With Selection.Borders(xlEdgeRight)
+        .Weight = xlThin
+    End With
+        Range("F5").Select
+    Selection.Borders(xlDiagonalUp).LineStyle = xlNone
+        With Selection.Borders(xlEdgeRight)
+        .Weight = xlThin
+    End With
+        Range("G5").Select
+    Selection.Borders(xlDiagonalUp).LineStyle = xlNone
+        With Selection.Borders(xlEdgeRight)
+        .Weight = xlThin
+    End With
+    
+    ' закончили подгон ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    
+    ' подгон_даты
+    
+    Range("B3").Select
+    Selection.Font.Bold = True
+    With Selection.Font
+        .Name = "Calibri"
+        .Size = 10
+    End With
+    With Selection
+        .HorizontalAlignment = xlCenter
+    End With
+    
+
+    
+    ' раздел сортировки и копирования данных
+    ' получаем количество строк +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    Allrecs = Application.WorksheetFunction.CountA(Sheets(NameSheetCopy).Range("A:A"))
+       
+      ' переменные для цикла
+        Number_position = 0
+        Number_Chapter = 0
+        Index_Chapter = 1
+        Name_page = For_Sheet_Client
+        Sum_Price = 0
+        Not_First_Chapter = False
+        Table_begin = 7
+        Table_end = 7
+        Subsection_Name = ""
+        
+    CurRec = 5
+    
+    For CurRecF = 1 To Allrecs ' перестроить под 5
+    
+    If Sheets(NameSheetCopy).Cells(line_pos, Number_t) < Sheets(NameSheetCopy).Cells(line_pos + 1, Number_t) Then
+        Allrecs = Sheets(NameSheetCopy).Cells(line_pos + 1, Number_t)
+    End If
+    
+    Number_position = Number_position + 1
+    
+    ' НАЧАЛО if +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    
+    If Number_Chapter <> Sheets(NameSheetCopy).Cells(line_pos, Сhapter_t_N) Then
+    
+        Number_Chapter = Sheets(NameSheetCopy).Cells(line_pos, Сhapter_t_N)
+        Index_Chapter = Index_Chapter + 1
+    
+    'создаем итоговую сумму для раздела +++
+    If Not_First_Chapter Then
+        Table_end = CurRec + Index_Chapter - 2  'новое значение для конца сетки
+    '------------------------------------------------------------------
+    Range_sector = "A" & Table_begin & ":" & "H" & Table_end
+    Range(Range_sector).Select
+    With Selection
+        .Borders(xlDiagonalDown).LineStyle = xlNone
+        .Borders(xlDiagonalUp).LineStyle = xlNone
+        .Borders(xlEdgeLeft).LineStyle = xlContinuous
+        .Borders(xlEdgeLeft).Weight = xlThin
+        .Borders(xlEdgeTop).LineStyle = xlContinuous
+        .Borders(xlEdgeTop).Weight = xlThin
+        .Borders(xlEdgeBottom).LineStyle = xlContinuous
+        .Borders(xlEdgeBottom).Weight = xlThin
+        .Borders(xlEdgeRight).LineStyle = xlContinuous
+        .Borders(xlEdgeRight).Weight = xlThin
+        .Borders(xlInsideVertical).LineStyle = xlContinuous
+        .Borders(xlInsideVertical).Weight = xlThin
+        .Borders(xlInsideHorizontal).LineStyle = xlContinuous
+        .Borders(xlInsideHorizontal).Weight = xlThin
+    End With
+    '------------------------------------------------------------------
+    
+    Sheets(Name_page).Cells((CurRec + Index_Chapter - 1), 4) = ResultBySec
+    
+    Sheets(Name_page).Cells((CurRec + Index_Chapter - 1), 4).Select
+    With Selection
+    .Font.Bold = True
+        .Font.Size = 10
+        .HorizontalAlignment = xlRight
+        .VerticalAlignment = xlBottom
+        .Orientation = 0
+        .IndentLevel = 0
+        .ReadingOrder = xlContext
+    End With
+    
+    Sheets(Name_page).Cells((CurRec + Index_Chapter - 1), 8) = Sum_Price
+    Sheets(Name_page).Cells((CurRec + Index_Chapter - 1), 8).NumberFormat = "#,##0""р."""
+    Sheets(Name_page).Cells((CurRec + Index_Chapter - 1), 8).Font.Bold = True
+        '-------------------------------------------------------------------------------
+    Sheets(Name_page).Cells((CurRec + Index_Chapter - 1), 8).Select
+    With Selection
+        .Borders(xlDiagonalDown).LineStyle = xlNone
+        .Borders(xlDiagonalUp).LineStyle = xlNone
+        .Borders(xlEdgeLeft).LineStyle = xlContinuous
+        .Borders(xlEdgeLeft).Weight = xlThin
+        .Borders(xlEdgeTop).LineStyle = xlContinuous
+        .Borders(xlEdgeTop).Weight = xlThin
+        .Borders(xlEdgeBottom).LineStyle = xlContinuous
+        .Borders(xlEdgeBottom).Weight = xlThin
+        .Borders(xlEdgeRight).LineStyle = xlContinuous
+        .Borders(xlEdgeRight).Weight = xlThin
+        .Borders(xlInsideVertical).LineStyle = xlContinuous
+        .Borders(xlInsideVertical).Weight = xlThin
+        .Borders(xlInsideHorizontal).LineStyle = xlContinuous
+        .Borders(xlInsideHorizontal).Weight = xlThin
+    End With
+        '-------------------------------------------------------------------------------
+    
+    Sum_Price = 0
+    
+    Index_Chapter = Index_Chapter + 1
+    End If
+    
+    Not_First_Chapter = True
+    ' создаем раздел +++
+    
+    Sheets(Name_page).Cells((CurRec + Index_Chapter - 1), 2).Value = "Раздел " & Number_Chapter
+    Sheets(Name_page).Cells((CurRec + Index_Chapter - 1), 4).Value = Sheets(NameSheetCopy).Cells(CurRec, 3)
+    Table_begin = CurRec + Index_Chapter  'новое значение для начала сетки
+    
+    ' подгонка текста и рамок
+    ' секция B
+    Sheets(Name_page).Cells((CurRec + Index_Chapter - 1), 2).Select
+    With Selection
+        .Font.Name = "Calibri"
+        .Font.Size = 10
+        .HorizontalAlignment = xlCenter
+    End With
+    
+    ' секция D
+    Sheets(Name_page).Cells((CurRec + Index_Chapter - 1), 4).Select
+    With Selection
+        .Font.Name = "Calibri"
+        .Font.Size = 10
+        .HorizontalAlignment = xlCenter
+    End With
+    
+    ' рамки
+    'слева
+    Sheets(Name_page).Cells((CurRec + Index_Chapter - 1), 1).Select
+    With Selection.Borders(xlEdgeLeft)
+        .LineStyle = xlContinuous
+        .Weight = xlThin
+    End With
+    'верх ++++++++++++++++++++++
+    For posIt = 1 To 8
+        Sheets(Name_page).Cells((CurRec + Index_Chapter - 1), posIt).Select
+        With Selection
+            .Borders(xlEdgeTop).LineStyle = xlContinuous
+            .Borders(xlEdgeTop).Weight = xlThin
+            .Borders(xlEdgeBottom).LineStyle = xlContinuous
+            .Borders(xlEdgeBottom).Weight = xlThin
+            .Interior.Pattern = xlSolid
+            .Interior.PatternColorIndex = xlAutomatic
+            .Interior.TintAndShade = -4.99893185216834E-02
+        End With
+    Next posIt
+    'низ +++++++++++++++++++++++
+
+    'справа
+    With Selection.Borders(xlEdgeRight)
+        .LineStyle = xlContinuous
+        .Weight = xlThin
+    End With
+    
+    End If
+    ' КОНЕЦ if +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    
+    ' if для определения подраздела ------------------------------------------------
+    
+    If Sheets(NameSheetCopy).Cells(line_pos, Subsection_Name_Index) <> Subsection_Name And Sheets(NameSheetCopy).Cells(line_pos, Subsection_Name_Index) <> "" Then
+        Sheets(Name_page).Cells((CurRec + Index_Chapter), 4) = Sheets(NameSheetCopy).Cells(line_pos, Subsection_Name_Index)
+        Subsection_Name = Sheets(NameSheetCopy).Cells(line_pos, Subsection_Name_Index)
+        
+        Sheets(Name_page).Cells((CurRec + Index_Chapter), 4).Select
+        With Selection
+            .Font.Italic = True
+            .HorizontalAlignment = xlCenter
+            .VerticalAlignment = xlCenter
+            .Font.Name = "Calibri"
+            .Font.Size = 10
+            .Font.ThemeFont = xlThemeFontMinor
+        End With
+        Index_Chapter = Index_Chapter + 1
+    End If
+    '-------------------------------------------------------------------------------
+    
+    Sheets(Name_page).Cells((CurRec + Index_Chapter), 1) = Number_position ' номер
+    Sheets(Name_page).Cells((CurRec + Index_Chapter), 1).Font.Size = 10
+    Sheets(Name_page).Cells((CurRec + Index_Chapter), 1).HorizontalAlignment = xlCenter
+    Sheets(Name_page).Cells((CurRec + Index_Chapter), 2) = Sheets(NameSheetCopy).Cells(line_pos, Manufacture_t) ' Произво.
+    Sheets(Name_page).Cells((CurRec + Index_Chapter), 2).Font.Size = 10
+    Sheets(Name_page).Cells((CurRec + Index_Chapter), 2).HorizontalAlignment = xlCenter
+    Sheets(Name_page).Cells((CurRec + Index_Chapter), 3) = Sheets(NameSheetCopy).Cells(line_pos, Model_t) ' Модель
+    Sheets(Name_page).Cells((CurRec + Index_Chapter), 3).Font.Size = 10
+    Sheets(Name_page).Cells((CurRec + Index_Chapter), 3).HorizontalAlignment = xlCenter
+    Sheets(Name_page).Cells((CurRec + Index_Chapter), 4) = Sheets(NameSheetCopy).Cells(line_pos, Name_t) ' Наименование
+    Sheets(Name_page).Cells((CurRec + Index_Chapter), 4).Font.Size = 10
+    Sheets(Name_page).Cells((CurRec + Index_Chapter), 5) = Sheets(NameSheetCopy).Cells(line_pos, Index_t) ' Ед. изм.
+    Sheets(Name_page).Cells((CurRec + Index_Chapter), 5).Font.Size = 10
+    Sheets(Name_page).Cells((CurRec + Index_Chapter), 5).HorizontalAlignment = xlCenter
+    Sheets(Name_page).Cells((CurRec + Index_Chapter), 6) = Sheets(NameSheetCopy).Cells(line_pos, Count_t) ' Кол-во
+    Sheets(Name_page).Cells((CurRec + Index_Chapter), 6).Font.Size = 10
+    Sheets(Name_page).Cells((CurRec + Index_Chapter), 6).HorizontalAlignment = xlCenter
+    Sheets(Name_page).Cells((CurRec + Index_Chapter), 7) = Sheets(NameSheetCopy).Cells(line_pos, Price_t) ' Цена за 1 шт.
+    Sheets(Name_page).Cells((CurRec + Index_Chapter), 7).Font.Size = 10
+    Sheets(Name_page).Cells((CurRec + Index_Chapter), 7).NumberFormat = "#,##0""р."""
+    Sheets(Name_page).Cells((CurRec + Index_Chapter), 8) = Sheets(NameSheetCopy).Cells(line_pos, Sum_t) ' Цена сумма.
+    Sheets(Name_page).Cells((CurRec + Index_Chapter), 8).Font.Size = 10
+    Sheets(Name_page).Cells((CurRec + Index_Chapter), 8).NumberFormat = "#,##0""р."""
+    
+    Sum_Price = Sum_Price + Sheets(NameSheetCopy).Cells(line_pos, 11)
+    
+     'создаем итоговую сумму для раздела -------------------------------------------
+    If CurRec = Allrecs Then
+    Table_end = CurRec + Index_Chapter - 1
+    
+    Number_position = Number_position + 1
+    Index_Chapter = Index_Chapter + 1
+    
+    Sheets(Name_page).Cells((CurRec + Index_Chapter), 4) = ResultBySec
+    
+    Sheets(Name_page).Cells((CurRec + Index_Chapter), 4).Select
+    With Selection
+        .Font.Bold = True
+        .Font.Size = 10
+        .HorizontalAlignment = xlRight
+        .VerticalAlignment = xlBottom
+        .Orientation = 0
+        .IndentLevel = 0
+        .ReadingOrder = xlContext
+    End With
+    
+    Sheets(Name_page).Cells((CurRec + Index_Chapter), 8) = Sum_Price
+    Sheets(Name_page).Cells((CurRec + Index_Chapter), 8).NumberFormat = "#,##0""р."""
+
+    '--------------------------------------------------------------------------------
+    Sheets(Name_page).Cells((CurRec + Index_Chapter), 8).Select
+    With Selection
+        .Borders(xlDiagonalDown).LineStyle = xlNone
+        .Borders(xlDiagonalUp).LineStyle = xlNone
+        .Borders(xlEdgeLeft).LineStyle = xlContinuous
+        .Borders(xlEdgeLeft).Weight = xlThin
+        .Borders(xlEdgeTop).LineStyle = xlContinuous
+        .Borders(xlEdgeTop).Weight = xlThin
+        .Borders(xlEdgeBottom).LineStyle = xlContinuous
+        .Borders(xlEdgeBottom).Weight = xlThin
+        .Borders(xlEdgeRight).LineStyle = xlContinuous
+        .Borders(xlEdgeRight).Weight = xlThin
+        .Borders(xlInsideVertical).LineStyle = xlContinuous
+        .Borders(xlInsideVertical).Weight = xlThin
+        .Borders(xlInsideHorizontal).LineStyle = xlContinuous
+        .Borders(xlInsideHorizontal).Weight = xlThin
+        .Font.Bold = True
+    End With
+    '--------------------------------------------------------------------------------
+    
+    End If
+    
+    CurRec = CurRec + 1
+    line_pos = line_pos + 1
+    Next CurRecF
+    
+End Sub
+
