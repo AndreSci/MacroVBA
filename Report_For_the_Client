@@ -1,3 +1,4 @@
+Attribute VB_Name = "RFtC"
 
 Sub Report_For_the_Client()
 
@@ -47,6 +48,8 @@ Sub Report_For_the_Client()
     Subsection_Name_Index = "Подраздел"
     
     'определили искомые объекты в таблице
+    mass_size = 11
+    true_end = False
     Dim massiv_table(11) As String
     massiv_table(0) = Number_t
     massiv_table(1) = Сhapter_t_N
@@ -60,84 +63,61 @@ Sub Report_For_the_Client()
     massiv_table(9) = Chapter_t
     massiv_table(10) = Subsection_Name_Index
     
+    Dim massiv_table_pos(11) As Integer
+    massiv_table_pos(0) = 0
+    massiv_table_pos(1) = 0
+    massiv_table_pos(2) = 0
+    massiv_table_pos(3) = 0
+    massiv_table_pos(4) = 0
+    massiv_table_pos(5) = 0
+    massiv_table_pos(6) = 0
+    massiv_table_pos(7) = 0
+    massiv_table_pos(8) = 0
+    massiv_table_pos(9) = 0
+    massiv_table_pos(10) = 0
     
     For posLine = 1 To 10 'не логично искать дальше если на 10 строке пусто или нет условия
     ' начало внутреннего цикла ------------------------------------------------------------
-        For posCol = 1 To 30
-            If Sheets(NameSheetCopy).Cells(posLine, posCol) = Number_t Then
-            find_item_for = find_item_for + 1
-            massiv_table(0) = ""
-            LineFind = True
-            Number_t = posCol
-                        ElseIf Sheets(NameSheetCopy).Cells(posLine, posCol) = Сhapter_t_N Then
-            massiv_table(1) = ""
-            find_item_for = find_item_for + 1
-            Сhapter_t_N = posCol
-                        ElseIf Sheets(NameSheetCopy).Cells(posLine, posCol) = Chapter_t Or Sheets(NameSheetCopy).Cells(posLine, posCol) = Chapter_t_s Then
-            find_item_for = find_item_for + 1
-            massiv_table(9) = ""
-            Chapter_t = posCol
-                        ElseIf Sheets(NameSheetCopy).Cells(posLine, posCol) = Manufacture_t Or Sheets(NameSheetCopy).Cells(posLine, posCol) = Manufacture_t_s Then
-            find_item_for = find_item_for + 1
-            massiv_table(2) = ""
-            Manufacture_t = posCol
-                        ElseIf Sheets(NameSheetCopy).Cells(posLine, posCol) = Model_t Or Sheets(NameSheetCopy).Cells(posLine, posCol) = Model_t_s Then
-            find_item_for = find_item_for + 1
-            massiv_table(3) = ""
-            Model_t = posCol
-                        ElseIf Sheets(NameSheetCopy).Cells(posLine, posCol) = Name_t Or Sheets(NameSheetCopy).Cells(posLine, posCol) = Name_t_s Then
-            find_item_for = find_item_for + 1
-            massiv_table(4) = ""
-            Name_t = posCol
-                        ElseIf Sheets(NameSheetCopy).Cells(posLine, posCol) = Index_t Or Sheets(NameSheetCopy).Cells(posLine, posCol) = Index_t_s Then
-            find_item_for = find_item_for + 1
-            massiv_table(5) = ""
-            Index_t = posCol
-                        ElseIf Sheets(NameSheetCopy).Cells(posLine, posCol) = Count_t Or Sheets(NameSheetCopy).Cells(posLine, posCol) = Count_t_s Then
-            find_item_for = find_item_for + 1
-            massiv_table(6) = ""
-            Count_t = posCol
-                        ElseIf Sheets(NameSheetCopy).Cells(posLine, posCol) = Price_t Or Sheets(NameSheetCopy).Cells(posLine, posCol) = Price_t_s Then
-            find_item_for = find_item_for + 1
-            massiv_table(7) = ""
-            Price_t = posCol
-                        ElseIf Sheets(NameSheetCopy).Cells(posLine, posCol) = Sum_t Or Sheets(NameSheetCopy).Cells(posLine, posCol) = Sum_t_s Then
-            find_item_for = find_item_for + 1
-            massiv_table(8) = ""
-            Sum_t = posCol
-                        ElseIf Sheets(NameSheetCopy).Cells(posLine, posCol) = Subsection_Name_Index Then
-            find_item_for = find_item_for + 1
-            massiv_table(10) = ""
-            Subsection_Name_Index = posCol
-            End If
-            
-        Next posCol
-        ' конец внутреннего цикла ------------------------------------------------------------
+        For posFindIt = 0 To (mass_size - 1)
+            For posF = 1 To 30
         
-        If find_item_for = 11 Then
-        line_pos = (posLine + 1)
-        'MsgBox messageGood & line_pos & " : " & Number_t
-            Exit For
-        ElseIf LineFind = True Then
-                error_type = ""
-                For index_f = 0 To 10
-                    If massiv_table(index_f) <> "" Then
-                    error_type = massiv_table(index_f)
+                If Sheets(NameSheetCopy).Cells(posLine, posF) = massiv_table(posFindIt) Then
+                    massiv_table_pos(posFindIt) = posF
+                    true_end = True
                     Exit For
-                    End If
-                Next index_f
+                End If
+            
+            Next posF
+        Next posFindIt
         
-                MsgBox messageErFix & " - ( " & error_type & " )"   'сообщение об ошибке
-        Exit Sub
+        For posMas = 0 To (mass_size - 1)
         
+            If massiv_table_pos(posMas) = 0 Then
+                For it = 0 To (mass_size - 1)
+                    massiv_table_pos(it) = 0
+                    true_end = False
+                Next it
+            End If
+        
+        Next posMas
+        
+        If true_end = True Then
+            line_pos = posLine + 1
+            Number_t = massiv_table_pos(0)
+            Сhapter_t_N = massiv_table_pos(1)
+            Manufacture_t = massiv_table_pos(2)
+            Model_t = massiv_table_pos(3)
+            Name_t = massiv_table_pos(4)
+            Index_t = massiv_table_pos(5)
+            Count_t = massiv_table_pos(6)
+            Price_t = massiv_table_pos(7)
+            Sum_t = massiv_table_pos(8)
+            Chapter_t = massiv_table_pos(9)
+            Subsection_Name_Index = massiv_table_pos(10)
+            
+            Exit For
         End If
-                
-        If posLine = 10 Then
-        MsgBox messageFailed    'сообщение об ошибке
-        macroGood_end = False
-        Exit Sub
-        End If
-        
+
     Next posLine
     
     'конец поиска столбцов в таблице +++++++++++++++++++++++++++
@@ -470,7 +450,7 @@ Sub Report_For_the_Client()
     Sheets(Name_page).Cells((CurRec + Index_Chapter), 8).Font.Size = 10
     Sheets(Name_page).Cells((CurRec + Index_Chapter), 8).NumberFormat = "#,##0""р."""
     
-    Sum_Price = Sum_Price + Sheets(NameSheetCopy).Cells(line_pos, 11)
+    Sum_Price = Sum_Price + Sheets(NameSheetCopy).Cells(line_pos, Sum_t)
     
      'создаем итоговую сумму для раздела -------------------------------------------
     If CurRec = Allrecs Then
