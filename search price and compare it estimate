@@ -1,0 +1,446 @@
+Attribute VB_Name = "Find_Price_037f"
+Function Find_Func_Table(massiv_table, massiv_table_pos, massiv_size, TestSheets)
+
+lineFind = 0
+
+For posLine = 1 To 50
+    itemMutch = 0
+    For itemNumber = 0 To (massiv_size - 1)
+        For posCol = 1 To 50
+        If TypeName(Sheets(TestSheets).Cells(posLine, posCol).Value) = "String" Then 'исключаем ошибки связаные с значениями типа %
+            If Sheets(TestSheets).Cells(posLine, posCol) = massiv_table(itemNumber) Then
+                massiv_table_pos(itemNumber) = posCol
+                itemMutch = itemMutch + 1
+                Exit For
+            End If
+        End If
+        Next posCol
+    Next itemNumber
+    
+    If itemMutch < massiv_size Then
+        itemMutch = 0
+    ElseIf itemMutch = massiv_size Then
+        lineFind = posLine
+        Exit For
+    End If
+    
+Next posLine
+
+Find_Func_Table = lineFind
+
+End Function
+Function IsFormula(ByVal Cell As Range, Optional ShowFormula As Boolean = False)
+    'Application.Volatile True
+    If ShowFormula Then
+        If Cell.HasFormula Then
+            IsFormula = IIf(Cell.HasArray, "{" & Cell.FormulaLocal & "}", Cell.FormulaLocal)
+        Else
+            IsFormula = "NONE"
+        End If
+    Else
+        IsFormula = "NONE"
+    End If
+End Function
+
+
+Sub Find_Price_035f()
+Attribute Find_Price_035f.VB_ProcData.VB_Invoke_Func = " \n14"
+'переменные для макроса ---------------------------------
+    For_Sheet_Report = "Отчет сравнения цен"
+    
+'-- переменные для прайса --------------------------------------------
+Dim massiv_table_price As Variant
+massiv_table_price = Array("Артикул", "Кол-во", "Цена", "Сумма")
+massiv_size_price = UBound(massiv_table_price) - LBound(massiv_table_price) + 1
+Product_position_Name_forPrice = "Товар"
+
+Dim massiv_table_pos_price() As Integer
+    ReDim massiv_table_pos_price(massiv_size_price)
+For i = 0 To (massiv_size_price - 1)
+    massiv_table_pos_price(i) = 0
+Next i
+'конец прайс ---------------------------------------------------------
+
+'-- переменные для Сметы ---------------------------------------------
+Dim massiv_table_smet As Variant
+massiv_table_smet = Array("Модель", "Кол-во", "Цена", "Сумма", "№", "ЦенаЗ", "ЦенаР", "Поставщик")
+' 0 - Модель
+' 1 - Кол-во
+' 2 - Цена
+' 3 - Сумма
+' 4 - №
+' 5 - ЦенаЗ
+' 6 - ЦенаР
+' 7 - Поставщик
+
+massiv_size_smet = UBound(massiv_table_smet) - LBound(massiv_table_smet) + 1
+
+Dim massiv_table_pos_smet() As Integer
+    ReDim massiv_table_pos_smet(massiv_size_smet)
+For i = 0 To (massiv_size_smet - 1)
+    massiv_table_pos_smet(i) = 0
+Next i
+'конец Сметы ---------------------------------------------------------
+
+'переменные для цикла ------------------------------------------------
+
+NameSheetPrice = "noname"
+NameSheetEstimate = "noname"
+
+
+'обьект определяющий строку искомых значение
+Dim lineFindPrice As Integer
+lineFindPrice = 0
+Dim lineFindSmet As Integer
+lineFindSmet = 0
+
+'--------------------- определение полей от сметы ------------------------------------------
+NameSheetEstimate = ActiveSheet.Name
+lineFindSmet = Find_Func_Table(massiv_table_smet, massiv_table_pos_smet, massiv_size_smet, NameSheetEstimate)
+
+'--------------------- начала поиска совпадений в страницах --------------------------------
+For Sheets_Count = 1 To ThisWorkbook.Sheets.Count
+    Sheets(Sheets_Count).Select
+    TestSheets = ActiveSheet.Name
+    
+    lineFindPrice = Find_Func_Table(massiv_table_price, massiv_table_pos_price, massiv_size_price, TestSheets)
+    
+    If lineFindPrice <> 0 Then
+        NameSheetPrice = TestSheets
+        Exit For
+    End If
+
+Next Sheets_Count
+
+weFindIt = 0
+
+For i = 1 To 50
+    If Cells(lineFindPrice, i) Like "*Товар*" Then
+        Product_position_Name_forPrice = i
+        Exit For
+    Else
+    End If
+Next
+'---------------------- конец поиска совпадений в страницах ---------------------------------
+
+'находим длинну -----------------------------------------------------------------------------
+Dim AllrecsPrice As Integer
+AllrecsPrice = 0
+For posLine = (lineFindPrice + 1) To 1000
+
+    If TypeName(Sheets(NameSheetPrice).Cells(posLine, massiv_table_pos_price(0)).Value) = "Empty" Then
+        Exit For
+    Else
+        AllrecsPrice = AllrecsPrice + 1
+    End If
+Next posLine
+
+AllrecsForSmet = 0
+For posLine = (lineFindSmet + 1) To 1000
+
+    If TypeName(Sheets(NameSheetEstimate).Cells(posLine, massiv_table_pos_smet(4)).Value) = "Empty" Then
+        Exit For
+    Else
+        If Sheets(NameSheetEstimate).Cells(posLine, massiv_table_pos_smet(4)).Value <> (AllrecsForSmet + 1) Then
+            Exit For
+        End If
+        AllrecsForSmet = AllrecsForSmet + 1
+    End If
+Next posLine
+
+'MsgBox "Позиция сектора Кол-во: " & massiv_table_pos_smet(1)
+
+'конец поиска длинны ------------------------------------------------------------------------
+
+'создаем лист для отчета --------------------------------------------------------------------
+
+    Application.DisplayAlerts = False
+    On Error Resume Next
+    Worksheets(For_Sheet_Report).Delete
+    Application.DisplayAlerts = True
+    Worksheets.Add.Name = For_Sheet_Report
+   
+    Sheets(For_Sheet_Report).Activate
+    
+    'Создаем наименование таблицы ---------------------------
+    Range("A2:A2").Value = "№"
+    Range("B2:B2").Value = "Модель/Артикул"
+    Range("C2:C2").Value = "Описание Модели/Артикула"
+    Range("D2:D2").Value = "Кол-во"
+    Range("E2:E2").Value = "Ед."
+    Range("F2:F2").Value = "Цена Сметы"
+    Range("G2:G2").Value = "Цена Поставщика"
+    Range("H2:H2").Value = "Резерв"
+    Range("I2:I2").Value = "Цена Закупки"
+    Range("J2:J2").Value = "Поставщик из сметы"
+    Range("K2:K2").Value = "Изменение цены"
+    Range("L2:L2").Value = "Комментарии"
+    
+    'подгон текста -------------------------------------------
+    Range("A2:L2").Select
+    With Selection
+        .HorizontalAlignment = xlCenter
+        .VerticalAlignment = xlCenter
+        .WrapText = True
+        .RowHeight = 25
+        .Font.Bold = True
+        .Font.Name = "Calibri"
+        .Font.Size = 10
+        .Font.Underline = xlUnderlineStyleNone
+        .Font.ThemeFont = xlThemeFontMinor
+        .ReadingOrder = xlContext
+        .HorizontalAlignment = xlCenter
+        .Borders(xlDiagonalDown).LineStyle = xlNone
+        .Borders(xlDiagonalUp).LineStyle = xlNone
+        .Borders(xlEdgeLeft).LineStyle = xlContinuous
+        .Borders(xlEdgeLeft).Weight = xlThin
+        .Borders(xlEdgeTop).LineStyle = xlContinuous
+        .Borders(xlEdgeTop).Weight = xlThin
+        .Borders(xlEdgeBottom).LineStyle = xlContinuous
+        .Borders(xlEdgeBottom).Weight = xlThin
+        .Borders(xlEdgeRight).LineStyle = xlContinuous
+        .Borders(xlEdgeRight).Weight = xlThin
+        .Borders(xlInsideVertical).LineStyle = xlContinuous
+        .Borders(xlInsideVertical).Weight = xlThin
+        .Borders(xlInsideHorizontal).LineStyle = xlContinuous
+        .Borders(xlInsideHorizontal).Weight = xlThin
+        .Interior.Color = 14540253
+    End With
+    
+    Columns("A:A").ColumnWidth = 8
+    Columns("B:B").ColumnWidth = 20
+    Columns("C:C").ColumnWidth = 60
+    Columns("D:D").ColumnWidth = 10
+    Columns("E:E").ColumnWidth = 10
+    Columns("F:F").ColumnWidth = 15
+    Columns("G:G").ColumnWidth = 15
+    Columns("H:H").ColumnWidth = 15
+    Columns("I:I").ColumnWidth = 15
+    Columns("J:J").ColumnWidth = 15
+    Columns("K:K").ColumnWidth = 15
+    Columns("L:L").ColumnWidth = 50
+
+'конец создания листа для отчета ------------------------------------------------------------
+
+'переменные для цыкла ------
+
+
+    Dim Old_pr_from_smet As Variant
+    Dim New_pr_from_price As Variant
+    
+    Dim Comments As Range
+   
+    IndexNameFind = 0
+    Dim Nproducts As Integer
+    Dim PriceSmet As Integer
+    Dim ItemNamePrice As String
+    
+    EndPrice = 0
+    EndSum = 0
+    
+
+For indexForPrice = 1 To AllrecsPrice
+
+    Set Comments = Sheets(For_Sheet_Report).Cells((indexForPrice + 2), 12)
+    Supplier_for_smet = "none"
+    
+    EndPrice = EndPrice + ((Sheets(NameSheetPrice).Cells((indexForPrice + lineFindPrice), massiv_table_pos_price(1)).Value * _
+    Sheets(NameSheetPrice).Cells((indexForPrice + lineFindPrice), massiv_table_pos_price(2)).Value))
+    
+    EndSum = EndSum + Sheets(NameSheetPrice).Cells((indexForPrice + lineFindPrice), massiv_table_pos_price(3)).Value
+    
+    'поиск повторов в прайсе от производителя ---------------------------
+    Dim WeFindArtInPrice As Integer
+    WeFindArtInPrice = 0
+    Dim PosFindArtInPrice(3000) As Integer
+    
+    
+    For indexForPriceB = 1 To AllrecsPrice
+        If Sheets(NameSheetPrice).Cells((indexForPrice + lineFindPrice), massiv_table_pos_price(0)).Value = _
+            Sheets(NameSheetPrice).Cells((indexForPriceB + lineFindPrice), massiv_table_pos_price(0)).Value Then
+                WeFindArtInPrice = WeFindArtInPrice + 1
+                PosFindArtInPrice(WeFindArtInPrice) = indexForPriceB
+        End If
+    Next indexForPriceB
+    
+    If WeFindArtInPrice > 1 Then
+        If WeFindArtInPrice > 4 Then
+            Comments = "В Счете поставщика Артикул: " & Sheets(NameSheetPrice).Cells((indexForPrice + lineFindPrice), massiv_table_pos_price(0)).Value _
+            & " повторяется " & WeFindArtInPrice & " раз"
+        Else
+            Comments = "В Счете поставщика Артикул: " & Sheets(NameSheetPrice).Cells((indexForPrice + lineFindPrice), massiv_table_pos_price(0)).Value _
+            & " повторяется " & WeFindArtInPrice & " раза"
+        End If
+        Comments = Comments & ". Номера "
+       For i = 1 To WeFindArtInPrice
+            Comments = Comments & " " & PosFindArtInPrice(i)
+       Next i
+    End If
+    '--------------------------------------------------------------------
+    
+    
+    New_pr_from_price = Sheets(NameSheetPrice).Cells((indexForPrice + lineFindPrice), massiv_table_pos_price(2)).Value
+    The_Purchase_Price = Sheets(NameSheetPrice).Cells((indexForPrice + lineFindPrice), massiv_table_pos_price(3)).Value _
+    / Sheets(NameSheetPrice).Cells((indexForPrice + lineFindPrice), massiv_table_pos_price(1)).Value
+    
+
+    For FindMeB = (lineFindSmet + 1) To (AllrecsForSmet + (lineFindSmet + 1))
+        If Sheets(NameSheetEstimate).Cells(FindMeB, massiv_table_pos_smet(0)).Value = _
+        Sheets(NameSheetPrice).Cells((indexForPrice + lineFindPrice), massiv_table_pos_price(0)).Value Then
+
+            Nproducts = Nproducts + Sheets(NameSheetEstimate).Cells(FindMeB, massiv_table_pos_smet(1)).Value
+            Old_pr_from_smet = Sheets(NameSheetEstimate).Cells(FindMeB, massiv_table_pos_smet(6)).Value
+            Supplier_for_smet = Sheets(NameSheetEstimate).Cells(FindMeB, massiv_table_pos_smet(7)).Value
+            
+            If Old_pr_from_smet = 0 Then
+                Old_pr_from_smet = 0
+            End If
+            Sheets(NameSheetEstimate).Cells(FindMeB, massiv_table_pos_smet(5)).Value = The_Purchase_Price '----вносит новую цену в раздел Цена3
+
+            IndexNameFind = IndexNameFind + 1
+            indexPos_FindMeB = FindMeB
+        End If
+    Next FindMeB
+    
+    '-------------- повторная попытка найти обьект с функцией похожих слов -------------------------------------------------
+    If IndexNameFind = 0 Then
+        
+        For FindMeB = (lineFindSmet + 1) To (AllrecsForSmet + (lineFindSmet + 1))
+        If Sheets(NameSheetEstimate).Cells(FindMeB, massiv_table_pos_smet(0)).Value Like _
+        ("*" & Sheets(NameSheetPrice).Cells((indexForPrice + lineFindPrice), massiv_table_pos_price(0)).Value & "*") Then
+
+            Nproducts = Nproducts + Sheets(NameSheetEstimate).Cells(FindMeB, massiv_table_pos_smet(1)).Value
+            Old_pr_from_smet = Sheets(NameSheetEstimate).Cells(FindMeB, massiv_table_pos_smet(6)).Value
+            Supplier_for_smet = Sheets(NameSheetEstimate).Cells(FindMeB, massiv_table_pos_smet(7)).Value
+            
+            If Old_pr_from_smet = 0 Then
+                Old_pr_from_smet = 0
+            End If
+
+            IndexNameFind = IndexNameFind + 1
+            indexPos_FindMeB = FindMeB
+        End If
+    Next FindMeB
+    
+    If IndexNameFind <> 0 Then
+        Comments = "Артикул имеет небольшое отличие"
+        Sheets(For_Sheet_Report).Cells((indexForPrice + 2), 2).Interior.Color = 10092543
+    End If
+    
+    End If
+    '-------------- конец повторного поиска -------------------------------------------------------------------------------
+    
+    '---- добавление цены в ЦенаЗ -----------------------------------------------------------------------------------------
+   ' If IndexNameFind <> 1 Or Sheets(NameSheetPrice).Cells((indexForPrice + lineFindPrice), massiv_table_pos_price(1)).Value <> _
+    '                         Sheets(NameSheetEstimate).Cells(indexPos_FindMeB, massiv_table_pos_smet(1)).Value Then
+        'если число найденых артикул не соответствует 1 или кол-во не совпадает
+        ' ничего не делаю +++
+    'Else
+    '    Sheets(NameSheetEstimate).Cells(indexPos_FindMeB, massiv_table_pos_smet(5)).Value = The_Purchase_Price
+   ' End If
+    '----------------------------------------------------------------------------------------------------------------------
+    
+    Sheets(For_Sheet_Report).Cells((indexForPrice + 2), 1) = indexForPrice
+    Sheets(For_Sheet_Report).Cells((indexForPrice + 2), 1).HorizontalAlignment = xlCenter
+    Sheets(For_Sheet_Report).Cells((indexForPrice + 2), 2) = Sheets(NameSheetPrice).Cells((indexForPrice + lineFindPrice), massiv_table_pos_price(0)).Value
+    Sheets(For_Sheet_Report).Cells((indexForPrice + 2), 2).HorizontalAlignment = xlCenter
+    Sheets(For_Sheet_Report).Cells((indexForPrice + 2), 3) = Sheets(NameSheetPrice).Cells((indexForPrice + lineFindPrice), Product_position_Name_forPrice).Value
+    Sheets(For_Sheet_Report).Cells((indexForPrice + 2), 3).HorizontalAlignment = xlRigth
+    Sheets(For_Sheet_Report).Cells((indexForPrice + 2), 4) = Sheets(NameSheetPrice).Cells((indexForPrice + lineFindPrice), massiv_table_pos_price(1)).Value
+    Sheets(For_Sheet_Report).Cells((indexForPrice + 2), 4).HorizontalAlignment = xlCenter
+    Sheets(For_Sheet_Report).Cells((indexForPrice + 2), 5) = "шт."
+    Sheets(For_Sheet_Report).Cells((indexForPrice + 2), 5).HorizontalAlignment = xlCenter
+    
+    Sheets(For_Sheet_Report).Cells((indexForPrice + 2), 7) = Sheets(NameSheetPrice).Cells((indexForPrice + lineFindPrice), massiv_table_pos_price(2)).Value
+    Sheets(For_Sheet_Report).Cells((indexForPrice + 2), 7).NumberFormat = "#,##0.00_р_."
+    
+    
+    'Sheets(For_Sheet_Report).Cells((indexForPrice + 2), 8) = Sheets(NameSheetPrice).Cells((indexForPrice + lineFindPrice), massiv_table_pos_price(3)).Value
+    'Sheets(For_Sheet_Report).Cells((indexForPrice + 2), 8).NumberFormat = "#,##0.00_р_."
+    Sheets(For_Sheet_Report).Cells((indexForPrice + 2), 9) = The_Purchase_Price
+    Sheets(For_Sheet_Report).Cells((indexForPrice + 2), 9).NumberFormat = "#,##0.00_р_."
+    Sheets(For_Sheet_Report).Cells((indexForPrice + 2), 10) = Supplier_for_smet
+    Sheets(For_Sheet_Report).Cells((indexForPrice + 2), 10).HorizontalAlignment = xlCenter
+    
+    If IndexNameFind > 0 Then
+        Sheets(For_Sheet_Report).Cells((indexForPrice + 2), 6) = Old_pr_from_smet
+        Sheets(For_Sheet_Report).Cells((indexForPrice + 2), 6).NumberFormat = "#,##0.00_р_."
+    
+        Sheets(For_Sheet_Report).Cells((indexForPrice + 2), 11) = New_pr_from_price - Old_pr_from_smet
+        Sheets(For_Sheet_Report).Cells((indexForPrice + 2), 11).NumberFormat = "#,##0.00_р_."
+    End If
+    
+'БЛОК УСЛОВИЙ -----------------------------------------------------------------------------------
+    If IndexNameFind > 1 Then
+        If Comments <> Empty Then
+            Comments = Comments & ". Смета содержит повторы артикула: " & _
+            Sheets(NameSheetPrice).Cells((indexForPrice + lineFindPrice), massiv_table_pos_price(0)).Value
+            Else
+            Comments = "Смета содержит повторы артикула: " & _
+            Sheets(NameSheetPrice).Cells((indexForPrice + lineFindPrice), massiv_table_pos_price(0)).Value
+        End If
+        Sheets(For_Sheet_Report).Cells((indexForPrice + 2), 2).Interior.Color = 49407
+    End If
+    
+    If Nproducts <> Sheets(NameSheetPrice).Cells((indexForPrice + lineFindPrice), massiv_table_pos_price(1)).Value _
+        And Nproducts > 0 Then
+            If Comments <> Empty Then
+                Comments = Comments & ". В Счете указано неверное количество " & _
+                Sheets(NameSheetPrice).Cells((indexForPrice + lineFindPrice), massiv_table_pos_price(0)).Value
+            Else
+                Comments = "В Счете указано неверное количество " & _
+                Sheets(NameSheetPrice).Cells((indexForPrice + lineFindPrice), massiv_table_pos_price(0)).Value
+            End If
+            Sheets(For_Sheet_Report).Cells((indexForPrice + 2), 2).Interior.Color = 26367
+    ElseIf IndexNameFind = 0 Then
+            If Comments <> Empty Then
+                Comments = Comments & ". Не удалось найти в смете " & _
+                Sheets(NameSheetPrice).Cells((indexForPrice + lineFindPrice), massiv_table_pos_price(0)).Value
+            Else
+                Comments = "Не удалось найти в смете " & _
+                Sheets(NameSheetPrice).Cells((indexForPrice + lineFindPrice), massiv_table_pos_price(0)).Value
+            End If
+            Sheets(For_Sheet_Report).Cells((indexForPrice + 2), 2).Interior.Color = 26367
+    End If
+'конец блока -------------------------------------------------------------------------------------
+
+    For_Coler_Item = "A" & (indexForPrice + 2) & ":L" & (indexForPrice + 2)
+        Range(For_Coler_Item).Select
+        With Selection
+        .Rows.AutoFit
+        .WrapText = True
+        .VerticalAlignment = xlCenter
+            .Font.Size = 10
+            .Borders(xlDiagonalDown).LineStyle = xlNone
+            .Borders(xlDiagonalUp).LineStyle = xlNone
+            .Borders(xlEdgeLeft).LineStyle = xlContinuous
+            .Borders(xlEdgeLeft).Weight = xlThin
+            .Borders(xlEdgeTop).LineStyle = xlContinuous
+            .Borders(xlEdgeTop).Weight = xlThin
+            .Borders(xlEdgeBottom).LineStyle = xlContinuous
+            .Borders(xlEdgeBottom).Weight = xlThin
+            .Borders(xlEdgeRight).LineStyle = xlContinuous
+            .Borders(xlEdgeRight).Weight = xlThin
+            .Borders(xlInsideVertical).LineStyle = xlContinuous
+            .Borders(xlInsideVertical).Weight = xlThin
+            .Borders(xlInsideHorizontal).LineStyle = xlContinuous
+            .Borders(xlInsideHorizontal).Weight = xlThin
+        End With
+        
+        New_pr_from_price = 0
+        Sum_For_Smet_price = 0
+        IndexNameFind = 0
+        Nproducts = 0
+Next indexForPrice
+
+Sheets(For_Sheet_Report).Cells((AllrecsPrice + 4), 9) = "Итого:"
+Sheets(For_Sheet_Report).Cells((AllrecsPrice + 4), 9).HorizontalAlignment = xlRight
+Sheets(For_Sheet_Report).Cells((AllrecsPrice + 4), 9).Font.Bold = True
+Sheets(For_Sheet_Report).Cells((AllrecsPrice + 4), 10) = EndPrice
+Sheets(For_Sheet_Report).Cells((AllrecsPrice + 4), 10).NumberFormat = "#,##0.00_р_."
+Sheets(For_Sheet_Report).Cells((AllrecsPrice + 4), 10).Font.Bold = True
+Sheets(For_Sheet_Report).Cells((AllrecsPrice + 4), 11) = EndSum
+Sheets(For_Sheet_Report).Cells((AllrecsPrice + 4), 11).NumberFormat = "#,##0.00_р_."
+Sheets(For_Sheet_Report).Cells((AllrecsPrice + 4), 11).Font.Bold = True
+
+End Sub
